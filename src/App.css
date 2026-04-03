@@ -1,0 +1,156 @@
+body, .modal-content {
+  background-color: #0F172A;
+  color: #F8FAFC;
+}
+
+nav.navbar {
+  background-color: #131C2E !important;
+}
+
+.logo-color {
+  color: #FF6A2A;
+}
+
+.main-container {
+  min-height: 74vh;
+}
+
+.footer {
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.footer p {
+  text-align: center;;
+}
+
+.footer a {
+  color: #F8FAFC;
+}
+
+.spacer {
+  margin-top: 10%;
+  text-align: center;
+}
+
+.align-center {
+  align-content: center;
+}
+
+.col-fit-content {
+  width: fit-content;
+  max-width: fit-content;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.btn-primary {
+  background-color: #1D4ED8;
+}
+
+.btn-outline-primary {
+  border-color: #1D4ED8;
+}
+
+.indicator {
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+  width: fit-content;
+  padding: 5px 10px;
+  position: absolute;
+  top: 10px;
+  font-weight: 600;
+}
+
+.indicator-live {
+  background-color: #EF4444;
+  left: 10px;
+}
+
+.indicator-final {
+  background-color: #94A3B8;
+  color: black;
+  right: 10px;
+}
+
+.indicator-upcoming {
+  background-color: #FDE68A;
+  color: black;
+  right: 10px;
+}
+
+.start-time {
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  font-size: 20px;
+}
+
+.main-content-card {
+  background-color: transparent;
+  color: #F8FAFC;
+  border-color: #94A3B8;
+}
+
+.main-content-card .subtitle {
+  color: #94A3B8;
+  font-size: 20px;
+}
+
+.game-card {
+  min-height: 250px;
+  background-color: #1E293B;
+  color: #F8FAFC;
+}
+
+.game-card.live-game {
+  border-color: #EF4444;
+}
+
+.game-card h5 {
+  margin-bottom: 0;
+  height: 100%;
+  align-content: center;
+}
+
+.game-card .card-footer {
+  border-top: none;
+}
+
+.scorecard {
+  background-color: #0F172A;
+  height: 100%;
+  padding: 5px;
+}
+
+.no-scorecard {
+  height: 102px;
+}
+
+.scorecard p {
+  font-size: 20px;
+}
+
+.lower-score {
+  color: #EF4444;
+  font-weight: 600;
+}
+
+.higher-score {
+  color: #07af07;
+  font-weight: 600;
+}
