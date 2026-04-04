@@ -18,7 +18,7 @@ nav.navbar {
 .footer {
   width: 100%;
   margin: 0 auto;
-  padding: 40px 0;
+  padding: 60px 0 20px 0;
 }
 
 .footer p {
@@ -100,6 +100,24 @@ nav.navbar {
   font-size: 20px;
 }
 
+.timeout-bar {
+  width: 10px;
+  height: 4px;
+  margin-right: 2px;
+  display: inline-block;
+  border-radius: 1px;
+  transition: background-color 0.3s ease;
+}
+
+.timeout-bar.active {
+  background-color: #ffc107;
+}
+
+.timeout-bar.spent {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .main-content-card {
   background-color: transparent;
   color: #F8FAFC;
@@ -148,9 +166,41 @@ nav.navbar {
 .lower-score {
   color: #EF4444;
   font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .higher-score {
   color: #07af07;
   font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.team-name {
+  font-size: 16px;
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .game-card {
+    min-height: 270px
+  }
+}
+
+@media (max-width: 991px) {
+}
+
+@media (max-width: 767px) {
+  .score-row {
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  .team-name {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .game-card .card-title {
+    margin-top: 35px;
+  }
 }
