@@ -1,194 +1,22 @@
 import { useState, useEffect, Fragment } from 'react';
-import { Button, Card, Container, Col, Row } from 'react-bootstrap';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './views/Home.jsx';
+import GameCenter from './views/GameCenter.jsx';
 import NavbarMain from './components/Navbar.jsx';
-import GameCard from './components/GameCard.jsx';
 import ModalMessage from './components/ModalMessage.jsx';
 import Footer from './components/Footer.jsx';
 import './App.css';
 
 function App() {
-  const [loadMessage, setLoadMessage] = useState("Loading data...");
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [todayDate, setTodayDate] = useState('');
-  const [tomorrow, setTomorrow] = useState('');
-  const [games, setGames] = useState([]);
-  const [showAllToday, setShowAllToday] = useState(false);
-  const [showAllTomorrow, setShowAllTomorrow] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
-  
-  const MAX_GAMES = 5;
-  
-  const todayGames = games.filter(game => game.date === todayDate);
-  const displayedGamesToday = showAllToday ? todayGames : todayGames.slice(0, MAX_GAMES);
-  
-  const tomorrowGames = games.filter(game => game.date === tomorrow);
-  const displayedGamesTomorrow = showAllTomorrow ? tomorrowGames : tomorrowGames.slice(0, MAX_GAMES);
-  
-  const apiKey = import.meta.env.VITE_BDL_API_KEY;
-
-  const getGameDates = () => {
-    const date = new Date();
-
-    const tomorrow = new Date(date);
-    tomorrow.setDate(date.getDate() + 1);
-
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    setTodayDate(formatDate(date));
-    setTomorrow(formatDate(tomorrow));
-  };
-
-  const formatDisplayDate = (dateString) => {
-    return new Date(dateString + "T12:00:00").toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  const fetchGamesToday = async () => {
-    try {
-      const url = `https://api.balldontlie.io/v1/games?start_date=${todayDate}`;
-      const response = await fetch(url,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': apiKey
-          },
-        }
-      );
-
-      const data = await response.json();
-      setGames(data.data);
-    } catch (error) {
-      console.log(error)
-      setLoadMessage("Error getting data :(");
-    }
-  }
-
-  useEffect(() => {
-    if (initialLoad) {
-      getGameDates();
-      setInitialLoad(false)
-    }
-  }, [initialLoad])
-
-  useEffect(() => {
-    if (todayDate) {
-      fetchGamesToday();
-    }
-  }, [todayDate])
-
-  const fetchPlayerStats = async (playerId) => {
-    try {
-      const url = 'https://api.balldontlie.io/v1/players?player_ids[]=237';
-      const newUrl = `https://api.balldontlie.io/v1/games?start_date=${getTodayDate()}`;
-      const response = await fetch(newUrl,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': '72142abe-a3ff-4a88-8ef6-c29ceb6ee69d'
-          },
-        }
-      );
-
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.log(error)
-    }
-  };
-
-  useEffect(() => {
-    console.log(games);
-  }, [games])
 
   return (
     <>
-      <NavbarMain onLinkClick={openModal} />
-
-      <Container className="main-container">
-        {games.length > 0 ?
-          <Row>
-            <Col xl={6} className="text-center">
-              <Card className="mt-4 main-content-card">
-                <Card.Body>
-                  <h4 className="text-left">Today's Games <span className="subtitle">({formatDisplayDate(todayDate)})</span></h4>
-
-                  {todayGames.length > 0 ?
-                    <>
-                      {displayedGamesToday.map((game) => (
-                        <GameCard game={game} key={game.id} onDetailsClick={openModal} />
-                      ))}
-                    </>
-                  :
-                    <h5 className="mt-5">No games today :(</h5>
-                  }
-
-                  {todayGames.length > MAX_GAMES && (
-                    <div className="text-center mt-3">
-                      <button
-                        className="btn btn-outline-primary"
-                        onClick={() => setShowAllToday(!showAllToday)}
-                      >
-                        {showAllToday ? "Show Less" : `View ${todayGames.length - MAX_GAMES} More Games`}
-                      </button>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col xl={6} className="text-center">
-              <Card className="mt-4 main-content-card">
-                <Card.Body>
-                  <h4 className="text-left">Tomorrow's Games <span className="subtitle">({formatDisplayDate(tomorrow)})</span></h4>
-                  {tomorrowGames.length > 0 ?
-                    <>
-                      {displayedGamesTomorrow.map((game) => (
-                        <GameCard game={game} key={game.id} onDetailsClick={openModal} />
-                      ))}
-                    </>
-                  :
-                    <h5 className="mt-5">No games tomorrow :(</h5>
-                  }
-
-                  {tomorrowGames.length > MAX_GAMES && (
-                    <div className="text-center mt-3">
-                      <button
-                        className="btn btn-outline-primary"
-                        onClick={() => setShowAllTomorrow(!showAllTomorrow)}
-                      >
-                        {showAllTomorrow ? "Show Less" : `View ${tomorrowGames.length - MAX_GAMES} More Games`}
-                      </button>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        :
-          <Row>
-            <Col sm={12} className="spacer">
-              <h3>{loadMessage}</h3>
-            </Col>
-          </Row>
-        }
-      </Container>
-
-      <Footer />
-
-      <ModalMessage show={showModal} handleClose={closeModal} />
+      <BrowserRouter basename="/HoopStack">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/gamecenter/:id" element={<GameCenter />} />
+        </Routes>
+      </BrowserRouter>
     </>
   )
 }

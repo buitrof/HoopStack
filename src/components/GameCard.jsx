@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom';
 import { Button, Card, Container, Col, Row } from 'react-bootstrap';
 import * as NBAIcons from 'react-nba-logos';
 
-const GameCard = ({ game, onDetailsClick }) => {
+const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
   const HomeLogo = NBAIcons[game.home_team.abbreviation];
   const VisitorLogo = NBAIcons[game.visitor_team.abbreviation];
 
@@ -140,15 +141,26 @@ const GameCard = ({ game, onDetailsClick }) => {
           </Col>
         </Row>
       </Card.Body>
-      <Card.Footer>
-        <Button 
-          variant="primary" 
-          className={game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' || game.status === 'Final' ? "w-100" : "w-100 disabled"}
-          onClick={onDetailsClick}
-        >
-          View Game Center
-        </Button>
-      </Card.Footer>
+      {!gameCenterLinkHide &&
+        <Card.Footer>
+          {game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' || game.status === 'Final' ?
+            <Link
+              to={`/gamecenter/${game.id}`}
+              className="btn btn-primary w-100"
+            >
+              View Game Center
+            </Link>
+          :
+            <Button
+              variant="primary"
+              className="w-100 disabled"
+              onClick={onDetailsClick}
+            >
+              View Game Center
+            </Button>
+          }
+        </Card.Footer>
+      }
     </Card>
   )
 };
