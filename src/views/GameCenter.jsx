@@ -79,7 +79,8 @@ function GameCenter() {
   useEffect(() => {
     if (!game) return;
 
-    const currentActivePeriod = game.period; 
+    const currentActivePeriod = game.period;
+    const allLabels = ["", "Q1", "Q2", "Q3", "Q4", "OT1", "OT2", "OT3"];
 
     const getCumulativeScores = (teamPrefix) => {
       const periodKeys = ['q1', 'q2', 'q3', 'q4', 'ot1', 'ot2', 'ot3'];
@@ -92,7 +93,8 @@ function GameCenter() {
             hover: { enabled: false }
           }
         }, 
-        periodScore: 0
+        periodScore: 0,
+        label: allLabels
       }];
       let runningTotal = 0;
 
@@ -104,7 +106,7 @@ function GameCenter() {
         const scoreValue = periodScore !== null ? periodScore : 0;
 
         runningTotal += scoreValue;
-        scores.push({ x: i + 1, y: runningTotal, periodScore: scoreValue });
+        scores.push({ x: i + 1, y: runningTotal, periodScore: scoreValue, periodLabel: allLabels[i + 1] });
       }
       return scores;
     };
@@ -115,7 +117,6 @@ function GameCenter() {
     setVisitorPoints(visitorData);
     setHomePoints(homeData);
 
-    const allLabels = ["", "Q1", "Q2", "Q3", "Q4", "OT1", "OT2", "OT3"];
     setChartLabels(allLabels.slice(0, visitorData.length));
 
     const hasOT = chartLabels.includes("OT1");
@@ -149,7 +150,7 @@ function GameCenter() {
         formatter: function () {
           if (this.x === 0) return false;
 
-          const periodLabel = chartLabels[this.x];
+          const periodLabel = this.points[0].point.periodLabel;
           let s = `<b>${periodLabel}</b><br/>`;
 
           this.points.forEach(point => {
