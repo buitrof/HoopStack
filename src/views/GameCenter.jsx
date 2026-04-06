@@ -119,12 +119,14 @@ function GameCenter() {
 
     setChartLabels(allLabels.slice(0, visitorData.length));
 
-    const hasOT = chartLabels.includes("OT1");
+    const currentLabels = allLabels.slice(0, visitorData.length);
+    const hasOT = currentLabels.includes("OT1");
 
-    setChartOptions({
+    setChartOptions(prevOptions => ({
+      ...prevOptions,
       xAxis: {
-        categories: chartLabels,
-        tickmarkPlacement: 'on',
+        ...prevOptions.xAxis,
+        categories: currentLabels,
         min: 0,
         plotLines: hasOT ? [{
           color: '#FF0000',
@@ -162,7 +164,7 @@ function GameCenter() {
           return s;
         }
       }
-    });
+    }));
   }, [game])
 
   const getGameDates = () => {

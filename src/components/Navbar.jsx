@@ -1,14 +1,12 @@
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
+import { Link } from 'react-router-dom';
+import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
 import logo from '../assets/HoopStack.png';
 
 export default function NavbarMain({ onLinkClick }) {
   return (
     <Navbar expand="md" bg="dark" data-bs-theme="dark">
       <Container>
-        <Navbar.Brand href="/">
+        <Navbar.Brand as={Link} to="/">
           <img
             src={logo}
             width="50"
@@ -21,7 +19,7 @@ export default function NavbarMain({ onLinkClick }) {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/">Home</Nav.Link>
+            <Nav.Link as={Link} to="/" event-key="/">Home</Nav.Link>
             <Nav.Link href="#" onClick={onLinkClick}>Scores</Nav.Link>
             <Nav.Link href="#" onClick={onLinkClick}>Standings</Nav.Link>
           </Nav>
