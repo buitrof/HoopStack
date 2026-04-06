@@ -18,6 +18,32 @@ function GameCenter() {
   const [todayDate, setTodayDate] = useState('');
   const [visitorPoints, setVisitorPoints] = useState([]);
   const [homePoints, setHomePoints] = useState([]);
+  const [chartLabels, setChartLabels] = useState('');
+  const [chartOptions, setChartOptions] = useState({
+    xAxis: { 
+      categories: [], 
+      tickmarkPlacement: 'on',
+      title: { text: 'Period' },
+      startOnTick: true,
+      labels: {
+        formatter: function () {
+          return this.value === "" ? "" : this.value;
+        }
+      }
+    },
+    yAxis: {
+      min: 0,
+      title: { text: 'Points' }
+    },
+    plotOptions: {
+      series: {
+        marker: {
+          enabled: true
+        }
+      }
+    },
+    series: []
+  });
   const [showModal, setShowModal] = useState(false);
   
   const openModal = () => setShowModal(true);
@@ -51,37 +77,92 @@ function GameCenter() {
   };
 
   useEffect(() => {
-    if (game) {
-      const visitor_q1 = game.visitor_q1;
-      const visitor_q2 = game.visitor_q2 + visitor_q1;
-      const visitor_q3 = game.visitor_q3 + visitor_q2;
-      const visitor_q4 = game.visitor_q4 + visitor_q3;
+    if (!game) return;
 
-      setVisitorPoints([visitor_q1, visitor_q2, visitor_q3, visitor_q4]);
+    const currentActivePeriod = game.period; 
 
-      const home_q1 = game.home_q1;
-      const home_q2 = game.home_q2 + home_q1;
-      const home_q3 = game.home_q3 + home_q2;
-      const home_q4 = game.home_q4 + home_q3;
+    const getCumulativeScores = (teamPrefix) => {
+      const periodKeys = ['q1', 'q2', 'q3', 'q4', 'ot1', 'ot2', 'ot3'];
+      const scores = [{
+        x: 0,
+        y: 0,
+        marker: {
+          enabled: false,
+          states: {
+            hover: { enabled: false }
+          }
+        }, 
+        periodScore: 0
+      }];
+      let runningTotal = 0;
 
-      setHomePoints([home_q1, home_q2, home_q3, home_q4]);
-    }
-  }, [game])
+      for (let i = 0; i < periodKeys.length; i++) {
+        const periodIndex = i + 1;
+        if (periodIndex > currentActivePeriod) break;
 
-  const chartOptions = {
-    xAxis: {
-      categories: ['1', '2', '3', '4'],
-      title: {
-        text: 'Quarter'
+        const periodScore = game[`${teamPrefix}_${periodKeys[i]}`] ?? 0;
+        const scoreValue = periodScore !== null ? periodScore : 0;
+
+        runningTotal += scoreValue;
+        scores.push({ x: i + 1, y: runningTotal, periodScore: scoreValue });
       }
-    },
-    yAxis: {
-      title: {
-        text: 'Points'
+      return scores;
+    };
+
+    const visitorData = getCumulativeScores('visitor');
+    const homeData = getCumulativeScores('home');
+
+    setVisitorPoints(visitorData);
+    setHomePoints(homeData);
+
+    const allLabels = ["", "Q1", "Q2", "Q3", "Q4", "OT1", "OT2", "OT3"];
+    setChartLabels(allLabels.slice(0, visitorData.length));
+
+    const hasOT = chartLabels.includes("OT1");
+
+    setChartOptions({
+      xAxis: {
+        categories: chartLabels,
+        tickmarkPlacement: 'on',
+        min: 0,
+        plotLines: hasOT ? [{
+          color: '#FF0000',
+          width: 2,
+          value: 4,
+          dashStyle: 'Dash',
+          zIndex: 5,
+        }] : [],
+        plotBands: hasOT ? [{
+          from: 4,
+          to: 10,
+          color: 'rgba(200, 200, 200, 0.1)',
+          label: {
+            text: 'Overtime',
+            align: 'center',
+            style: { color: '#999' }
+          }
+        }] : []
       },
-      min: 0
-    },
-  };
+      tooltip: {
+        shared: true,
+        useHTML: true,
+        formatter: function () {
+          if (this.x === 0) return false;
+
+          const periodLabel = chartLabels[this.x];
+          let s = `<b>${periodLabel}</b><br/>`;
+
+          this.points.forEach(point => {
+            s += `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: 
+              <b>${point.y}</b> <span style="font-size: 0.8em; color: #666;">
+              (+${point.point.periodScore})</span><br/>`;
+          });
+
+          return s;
+        }
+      }
+    });
+  }, [game])
 
   const getGameDates = () => {
     const date = new Date();
@@ -145,7 +226,7 @@ function GameCenter() {
                 <Card.Body>
                   <h4 className="text-left">Period Scores</h4>
 
-                  <Chart options={chartOptions}>
+                  <Chart options={chartOptions} oneToOne={true}>
                     {seriesCatalog.map((series) => {
                       const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
 

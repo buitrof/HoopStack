@@ -92,9 +92,12 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
                   <h5>
                     <span>{period}</span>
                     <br />
-                  {game.status !== 'Final' &&
-                    <span className={`fw-bold ${formattedTime.includes('.') ? 'text-danger' : ''}`}>{formattedTime}</span>
-                  }
+                    {game.status !== 'Final' &&
+                      <span className={`fw-bold ${formattedTime.includes('.') ? 'text-danger' : ''}`}>{formattedTime}</span>
+                    }
+                    {game.status === 'Final' && game.home_ot1 &&
+                      <span>OT</span>
+                    }
                   </h5>
                 </Col>
 
