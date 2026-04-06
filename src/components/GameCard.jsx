@@ -6,6 +6,19 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
   const HomeLogo = NBAIcons[game.home_team.abbreviation];
   const VisitorLogo = NBAIcons[game.visitor_team.abbreviation];
 
+  const getRegulationScores = (teamPrefix) => {
+    const periodKeys = ['q1', 'q2', 'q3', 'q4'];
+    let runningTotal = 0;
+
+    for (let i = 0; i < periodKeys.length; i++) {
+      const periodScore = game[`${teamPrefix}_${periodKeys[i]}`] ?? 0;
+      const scoreValue = periodScore !== null ? periodScore : 0;
+
+      runningTotal += scoreValue;
+    }
+    return runningTotal;
+  };
+
   const formatGameTime = (utcString) => {
     if (!utcString || !utcString.includes('T')) return utcString;
 
@@ -32,9 +45,9 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
   const { period, formattedTime } = formatGameStatus(game.time);
 
   return (
-    <Card className={game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' ? "game-card live-game mt-3" : "game-card mt-3"}>
+    <Card className={game.period > 0 && game.status !== 'Final' ? "game-card live-game mt-3" : "game-card mt-3"}>
       <Card.Body>
-        {game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' ?
+        {game.period > 0 && game.status !== 'Final' ?
           <div className="indicator indicator-live">LIVE</div>
         : game.status === 'Final' ?
           <div className="indicator indicator-final">FINAL</div>
@@ -61,7 +74,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
           </Col>
 
           <Col xl={6} lg={8} md={6} className="score-row">
-            {game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' || game.status === 'Final' ?
+            {game.period > 0 ?
               <Row className="g-0">
                 <Col xs={4}>
                   <div className="scorecard">
@@ -92,12 +105,13 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
                   <h5>
                     <span>{period}</span>
                     <br />
-                    {game.status !== 'Final' &&
+                    {game.status !== 'Final' && (getRegulationScores("visitor") !== getRegulationScores("home")) && (
                       <span className={`fw-bold ${formattedTime.includes('.') ? 'text-danger' : ''}`}>{formattedTime}</span>
-                    }
-                    {game.status === 'Final' && game.home_ot1 &&
+                    )}
+
+                    {game.status === 'Final' && game.home_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) && (
                       <span>OT</span>
-                    }
+                    )}
                   </h5>
                 </Col>
 
@@ -146,7 +160,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
       </Card.Body>
       {!gameCenterLinkHide &&
         <Card.Footer>
-          {game.status === '1st Qtr' || game.status === '2nd Qtr' || game.status === '3rd Qtr' || game.status === '4th Qtr' || game.status === 'Final' ?
+          {game.period > 0 ?
             <Link
               to={`/gamecenter/${game.id}`}
               className="btn btn-primary w-100"

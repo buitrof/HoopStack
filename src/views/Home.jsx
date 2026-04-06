@@ -66,11 +66,18 @@ function Home() {
         }
       );
 
+      if (response.status === 429) {
+        throw new Error('RATE_LIMIT');
+      }
       const data = await response.json();
       setGames(data.data);
     } catch (error) {
       console.log(error)
-      setLoadMessage("Error getting data :(");
+      if (error.message === 'RATE_LIMIT') {
+        setLoadMessage("Whoa there! Too many requests. Please wait a minute and try again.");
+      } else {
+        setLoadMessage("Error getting data :(");
+      }
     }
   }
 

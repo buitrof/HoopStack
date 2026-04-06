@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Card, Container, Col, Row } from 'react-bootstrap';
+import { Button, Card, Container, Col, Row, Table } from 'react-bootstrap';
 import { Chart, Series, Tooltip } from "@highcharts/react";
 import Highcharts from "highcharts/highcharts";
 import "highcharts/modules/exporting";
@@ -23,23 +23,44 @@ function GameCenter() {
     xAxis: { 
       categories: [], 
       tickmarkPlacement: 'on',
-      title: { text: 'Period' },
+      title: { text: 'Period', style: { color: '#F8FAFC' } },
       startOnTick: true,
       labels: {
         formatter: function () {
           return this.value === "" ? "" : this.value;
+        },
+        style: {
+          color: '#F8FAFC'
         }
-      }
+      },
+      gridLineColor: 'rgba(255, 255, 255, 0.1)'
     },
     yAxis: {
       min: 0,
-      title: { text: 'Points' }
+      title: { text: 'Points', style: { color: '#F8FAFC' } },
+      gridLineColor: 'rgba(255, 255, 255, 0.1)',
+      labels: { style: { color: '#F8FAFC' } }
     },
     plotOptions: {
       series: {
         marker: {
           enabled: true
         }
+      }
+    },
+    chart: {
+      backgroundColor: 'transparent',
+      style: {
+        fontFamily: 'Roboto, sans-serif'
+      }
+    },
+    legend: {
+      itemStyle: {
+        color: '#F8FAFC',
+        fontWeight: 'bold'
+      },
+      itemHoverStyle: {
+        color: '#CBD5E1'
       }
     },
     series: []
@@ -68,11 +89,18 @@ function GameCenter() {
         }
       );
       
+      if (response.status === 429) {
+        throw new Error('RATE_LIMIT');
+      }
       const data = await response.json();
       setGame(data.data);
     } catch (error) {
       console.log(error)
-      setLoadMessage("Error getting data :(");
+      if (error.message === 'RATE_LIMIT') {
+        setLoadMessage("Whoa there! Too many requests. Please wait a minute and try again.");
+      } else {
+        setLoadMessage("Error getting data :(");
+      }
     }
   };
 
@@ -81,6 +109,8 @@ function GameCenter() {
 
     const currentActivePeriod = game.period;
     const allLabels = ["", "Q1", "Q2", "Q3", "Q4", "OT1", "OT2", "OT3"];
+
+    const validOT = getRegulationScores("visitor") === getRegulationScores("home");
 
     const getCumulativeScores = (teamPrefix) => {
       const periodKeys = ['q1', 'q2', 'q3', 'q4', 'ot1', 'ot2', 'ot3'];
@@ -100,6 +130,8 @@ function GameCenter() {
 
       for (let i = 0; i < periodKeys.length; i++) {
         const periodIndex = i + 1;
+
+        if (periodIndex > 4 && !validOT) break;
         if (periodIndex > currentActivePeriod) break;
 
         const periodScore = game[`${teamPrefix}_${periodKeys[i]}`] ?? 0;
@@ -142,7 +174,7 @@ function GameCenter() {
           label: {
             text: 'Overtime',
             align: 'center',
-            style: { color: '#999' }
+            style: { color: '#F8FAFC' }
           }
         }] : []
       },
@@ -163,9 +195,38 @@ function GameCenter() {
 
           return s;
         }
-      }
+      },
     }));
   }, [game])
+
+  const getRunningTotals = (teamPrefix) => {
+    const periodKeys = ['q1', 'q2', 'q3', 'q4', 'ot1', 'ot2', 'ot3'];
+    let runningTotal = 0;
+
+    for (let i = 0; i < periodKeys.length; i++) {
+      const periodIndex = i + 1;
+      if (periodIndex > game.period) break;
+
+      const periodScore = game[`${teamPrefix}_${periodKeys[i]}`] ?? 0;
+      const scoreValue = periodScore !== null ? periodScore : 0;
+
+      runningTotal += scoreValue;
+    }
+    return runningTotal;
+  };
+
+  const getRegulationScores = (teamPrefix) => {
+    const periodKeys = ['q1', 'q2', 'q3', 'q4'];
+    let runningTotal = 0;
+
+    for (let i = 0; i < periodKeys.length; i++) {
+      const periodScore = game[`${teamPrefix}_${periodKeys[i]}`] ?? 0;
+      const scoreValue = periodScore !== null ? periodScore : 0;
+
+      runningTotal += scoreValue;
+    }
+    return runningTotal;
+  };
 
   const getGameDates = () => {
     const date = new Date();
@@ -196,7 +257,19 @@ function GameCenter() {
     console.log(game);
   }, [game])
 
-  if (!game) return <div className="spacer">{loadMessage}</div>;
+  const genericPage = 
+    <>
+      <NavbarMain onLinkClick={openModal} />
+
+      <Container className="smaller-container">
+        <div className="spacer"><h3>{loadMessage}</h3></div>
+      </Container>
+      <Footer />
+
+      <ModalMessage show={showModal} handleClose={closeModal} />
+    </>;
+
+  if (!game) return genericPage;
 
   const seriesCatalog = [
     { id: "visitor", name: game.visitor_team.name, type: "line", data: visitorPoints },
@@ -229,9 +302,74 @@ function GameCenter() {
                 <Card.Body>
                   <h4 className="text-left">Period Scores</h4>
 
+                  <Table bordered hover responsive variant="dark" className="hoops-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Q1</th>
+                        <th>Q2</th>
+                        <th>Q3</th>
+                        <th>Q4</th>
+                        {game.visitor_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) &&
+                          <th>OT1</th>
+                        }
+                        {game.visitor_ot2 !== null &&
+                          <th>OT2</th>
+                        }
+                        {game.visitor_ot3 !== null &&
+                          <th>OT3</th>
+                        }
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-left">{game.visitor_team.name}</td>
+                        <td>{game.visitor_q1}</td>
+                        <td>{game.period > 1 ? game.visitor_q2 : '-'}</td>
+                        <td>{game.period > 2 ? game.visitor_q3 : '-'}</td>
+                        <td>{game.period > 3 ? game.visitor_q4 : '-'}</td>
+                        {game.visitor_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) &&
+                          <td>{game.visitor_ot1}</td>
+                        }
+                        {game.visitor_ot2 !== null &&
+                          <td>{game.visitor_ot2}</td>
+                        }
+                        {game.visitor_ot3 !== null &&
+                          <td>{game.visitor_ot3}</td>
+                        }
+                        <td>{getRunningTotals("visitor")}</td>
+                      </tr>
+                      <tr>
+                        <td className="text-left">{game.home_team.name}</td>
+                        <td>{game.home_q1}</td>
+                        <td>{game.period > 1 ? game.home_q2 : '-'}</td>
+                        <td>{game.period > 2 ? game.home_q3 : '-'}</td>
+                        <td>{game.period > 3 ? game.home_q4 : '-'}</td>
+                        {game.home_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) &&
+                          <td>{game.home_ot1}</td>
+                        }
+                        {game.home_ot2 !== null &&
+                          <td>{game.home_ot2}</td>
+                        }
+                        {game.home_ot3 !== null &&
+                          <td>{game.home_ot3}</td>
+                        }
+                        <td>{getRunningTotals("home")}</td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+
+              <Card className="mt-4 main-content-card">
+                <Card.Body>
+                  <h4 className="text-left mb-4">Points per Quarter Performance</h4>
+
                   <Chart options={chartOptions} oneToOne={true}>
                     {seriesCatalog.map((series) => {
                       const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
+                      const chartPrimary = colors.primary === '#000000' ? '#444' : colors.primary;
 
                       return (
                       <Series
@@ -243,10 +381,23 @@ function GameCenter() {
                           id: series.id,
                           name: series.name,
                           color: colors.primary,
+                          shadow: {
+                            color: 'rgba(0, 0, 0, 0.5)',
+                            offsetX: 1,
+                            offsetY: 1,
+                            opacity: 0.8,
+                            width: 3
+                          },
                           marker: {
                             fillColor: colors.secondary,
                             lineWidth: 2,
-                            lineColor: colors.primary
+                            lineColor: colors.primary,
+                            states: {
+                              hover: {
+                                lineWidth: 3,
+                                lineColor: '#F8FAFC'
+                              }
+                            }
                           }
                         }}
                       />

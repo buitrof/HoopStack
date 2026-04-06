@@ -15,6 +15,10 @@ nav.navbar {
   min-height: 74vh;
 }
 
+.smaller-container {
+  min-height: 56vh;
+}
+
 .footer {
   width: 100%;
   margin: 0 auto;
@@ -177,6 +181,19 @@ nav.navbar {
 
 .team-name {
   font-size: 16px;
+}
+
+.hoops-table th {
+  background-color: #131C2E;
+}
+
+.hoops-table td{
+  background-color: transparent;
+}
+
+.hoops-table tr:hover > td {
+  background-color: #1E293B;
+  box-shadow: none;
 }
 
 @media (min-width: 1200px) and (max-width: 1399px) {
