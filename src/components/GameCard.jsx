@@ -61,14 +61,28 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
         <Card.Title>{game.visitor_team.name} vs. {game.home_team.name}</Card.Title>
 
         <Row className="mt-4 g-0">
-          <Col xl={3} lg={2} md={3} className="align-center">
+          <Col xl={3} lg={2} md={3} className="">
             <Row>
               <Col md={12} xs={4} className="visitor-logo">
                 <VisitorLogo size={75} />
+                <br className="mobile-show" />
+                <h5 className="mobile-show">{game.visitor_team.name}</h5>
               </Col>
 
-              <Col xs={12}>
-                <h5 className="team-name">{game.visitor_team.name}</h5>
+              <Col xs={12} className="mobile-hide">
+                <h5>{game.visitor_team.name}</h5>
+              </Col>
+
+              <Col xs={4} className="mobile-show">
+                <div className="no-scorecard align-center">
+                  <h5>vs.</h5>
+                </div>
+              </Col>
+
+              <Col xs={4} className="mobile-show">
+                <HomeLogo size={75} />
+                <br />
+                <h5>{game.home_team.name}</h5>
               </Col>
             </Row>
           </Col>
@@ -139,14 +153,14 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
                 </Col>
               </Row>
               :
-              <div className="no-scorecard">
+              <div className="no-scorecard mobile-hide">
                 <h5>vs.</h5>
               </div>
             }
           </Col>
 
-          <Col xl={3} lg={2} md={3} className="align-center">
-            <Row>
+          <Col xl={3} lg={2} md={3} className="">
+            <Row className="mobile-hide">
               <Col md={{ span: 12, offset: 0}} xs={{ span: 4, offset: 8}} className="home-logo">
                 <HomeLogo size={75} />
               </Col>

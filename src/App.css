@@ -196,6 +196,14 @@ nav.navbar {
   box-shadow: none;
 }
 
+.mobile-show {
+  display: none;
+}
+
+.mobile-hide {
+  display: revert;
+}
+
 @media (min-width: 1200px) and (max-width: 1399px) {
   .game-card {
     min-height: 270px
@@ -211,7 +219,15 @@ nav.navbar {
     margin-bottom: 15px;
   }
 
-  .team-name {
+  .game-card h5 {
+    height: unset;
+  }
+
+  .mobile-show {
+    display: revert;
+  }
+
+  .mobile-hide {
     display: none;
   }
 }
