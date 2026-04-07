@@ -1,8 +1,8 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Container, Col, Row, Table, Tabs, Tab } from 'react-bootstrap';
-import { Chart, Series, Tooltip } from "@highcharts/react";
-import Highcharts from "highcharts/highcharts";
+import { Chart, Series, Tooltip, setHighcharts } from "@highcharts/react";
+import Highcharts from "highcharts";
 import "highcharts/modules/exporting";
 import "highcharts/modules/accessibility";
 import GameCard from '../components/GameCard.jsx';
@@ -66,6 +66,7 @@ function GameCenter() {
     },
     series: []
   });
+  setHighcharts(Highcharts);
   const [showModal, setShowModal] = useState(false);
   
   const openModal = () => setShowModal(true);
