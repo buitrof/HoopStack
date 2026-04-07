@@ -76,6 +76,9 @@ function GameCenter() {
   }, [id]);
   
   const apiKey = import.meta.env.VITE_BDL_API_KEY;
+  const BASE_URL = import.meta.env.DEV
+    ? '/espn-api'
+    : 'https://site.web.api.espn.com';
   const statTypes = ['points', 'rebounds', 'assists'];
   
   const fetchGame = async () => {
@@ -115,7 +118,7 @@ function GameCenter() {
     try {
       const date = bdlGame.date.split('T')[0].replaceAll('-', '');
 
-      const scoreboardUrl = `/espn-api/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`;
+      const scoreboardUrl = `${BASE_URL}/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`;
       const response = await fetch(scoreboardUrl);
       const data = await response.json();
 
@@ -125,7 +128,7 @@ function GameCenter() {
 
       if (espnGame) {
         const espnId = espnGame.id;
-        const summaryUrl = `/espn-api/apis/site/v2/sports/basketball/nba/summary?event=${espnId}`;
+        const summaryUrl = `${BASE_URL}/apis/site/v2/sports/basketball/nba/summary?event=${espnId}`;
         const summaryResponse = await fetch(summaryUrl);
         const summaryData = await summaryResponse.json();
         setGameData(summaryData);
