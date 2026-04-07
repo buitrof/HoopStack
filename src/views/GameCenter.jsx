@@ -566,7 +566,7 @@ function GameCenter() {
                   <h4 className="text-left mb-4">Points per Quarter Performance</h4>
                   
                   {game && visitorPoints.length > 0 && (
-                    <Chart options={chartOptions} oneToOne={true} ref={chartRef}>
+                    <Chart options={chartOptions} ref={chartRef}>
                       {[
                         { id: "visitor", name: game.visitor_team.name, data: visitorPoints },
                         { id: "home", name: game.home_team.name, data: homePoints },
