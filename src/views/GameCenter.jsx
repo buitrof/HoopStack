@@ -403,7 +403,7 @@ function GameCenter() {
 
               <Card className="mt-4 main-content-card">
                 <Card.Body>
-                  <h4 className="text-left">Player Stats</h4>
+                  <h4 className="text-left mb-4">Player Stats</h4>
 
                   <Tabs
                     defaultActiveKey="awayTeam"
@@ -492,7 +492,7 @@ function GameCenter() {
 
               <Card className="mt-4 main-content-card">
                 <Card.Body>
-                  <h4 className="text-left">Team Leaders</h4>
+                  <h4 className="text-left mb-4">Team Leaders</h4>
 
                   <Table bordered hover responsive variant="dark" className="hoops-table">
                     <thead>
@@ -553,7 +553,7 @@ function GameCenter() {
             <Col xl={6} className="text-center">
               <Card className="mt-4 main-content-card">
                 <Card.Body>
-                  <h4 className="text-left">Period Scores</h4>
+                  <h4 className="text-left mb-4">Period Scores</h4>
 
                   <Table bordered hover responsive variant="dark" className="hoops-table">
                     <thead>
