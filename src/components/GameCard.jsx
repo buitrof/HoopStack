@@ -73,13 +73,15 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
                 <h5>{game.visitor_team.name}</h5>
               </Col>
 
-              <Col xs={4} className="mobile-show">
-                <div className="no-scorecard align-center">
-                  <h5>vs.</h5>
-                </div>
-              </Col>
+              {game.period === 0 &&
+                <Col xs={4} className="mobile-show">
+                  <div className="no-scorecard align-center">
+                    <h5>vs.</h5>
+                  </div>
+                </Col>
+              }
 
-              <Col xs={4} className="mobile-show">
+              <Col xs={game.period === 0 ? 4 : { span: 4, offset: 4 }} className="mobile-show">
                 <HomeLogo size={75} />
                 <br />
                 <h5>{game.home_team.name}</h5>
