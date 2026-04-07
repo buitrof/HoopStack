@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Fragment } from 'react';
+import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Container, Col, Row, Table, Tabs, Tab } from 'react-bootstrap';
 import Highcharts from "highcharts";
@@ -301,6 +301,54 @@ function GameCenter() {
     });
   };
 
+  const series = useMemo(() => {
+    if (!game || visitorPoints.length === 0 || homePoints.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        id: "visitor",
+        name: game.visitor_team.name,
+        data: visitorPoints,
+        color: teamColors[game.visitor_team.name]?.primary ?? "#333",
+        marker: {
+          fillColor: teamColors[game.visitor_team.name]?.secondary ?? "#999",
+          lineWidth: 2,
+          lineColor: teamColors[game.visitor_team.name]?.primary ?? "#333",
+          states: {
+            hover: {
+              lineWidth: 3,
+              lineColor: "#F8FAFC"
+            }
+          }
+        }
+      },
+      {
+        id: "home",
+        name: game.home_team.name,
+        data: homePoints,
+        color: teamColors[game.home_team.name]?.primary ?? "#333",
+        marker: {
+          fillColor: teamColors[game.home_team.name]?.secondary ?? "#999",
+          lineWidth: 2,
+          lineColor: teamColors[game.home_team.name]?.primary ?? "#333",
+          states: {
+            hover: {
+              lineWidth: 3,
+              lineColor: "#F8FAFC"
+            }
+          }
+        }
+      }
+    ];
+  }, [game, visitorPoints, homePoints, teamColors]);
+
+  const options = useMemo(() => ({
+    ...chartOptions,
+    series
+  }), [chartOptions, series]);
+
   useEffect(() => {
     console.log(game);
   }, [game])
@@ -375,16 +423,16 @@ function GameCenter() {
 
                             return (
                             <tr key={index}>
-                              <th>{index + 1}</th>
-                              <th className="text-left">{athlete.displayName}</th>
-                              <th>{stats.length !== 0 ? min : '-'}</th>
-                              <th>{stats.length !== 0 ? pts : '-'}</th>
-                              <th>{stats.length !== 0 ? reb : '-'}</th>
-                              <th>{stats.length !== 0 ? ast : '-'}</th>
-                              <th>{stats.length !== 0 ? stl : '-'}</th>
-                              <th>{stats.length !== 0 ? blk : '-'}</th>
-                              <th>{stats.length !== 0 ? to : '-'}</th>
-                              <th>{stats.length !== 0 ? pf : '-'}</th>
+                              <td>{index + 1}</td>
+                              <td className="text-left">{athlete.displayName}</td>
+                              <td>{stats.length !== 0 ? min : '-'}</td>
+                              <td>{stats.length !== 0 ? pts : '-'}</td>
+                              <td>{stats.length !== 0 ? reb : '-'}</td>
+                              <td>{stats.length !== 0 ? ast : '-'}</td>
+                              <td>{stats.length !== 0 ? stl : '-'}</td>
+                              <td>{stats.length !== 0 ? blk : '-'}</td>
+                              <td>{stats.length !== 0 ? to : '-'}</td>
+                              <td>{stats.length !== 0 ? pf : '-'}</td>
                             </tr>
                           )})}
                         </tbody>
@@ -412,16 +460,16 @@ function GameCenter() {
 
                             return (
                               <tr key={index}>
-                                <th>{index + 1}</th>
-                                <th className="text-left">{athlete.displayName}</th>
-                                <th>{stats.length !== 0 ? min : '-'}</th>
-                                <th>{stats.length !== 0 ? pts : '-'}</th>
-                                <th>{stats.length !== 0 ? reb : '-'}</th>
-                                <th>{stats.length !== 0 ? ast : '-'}</th>
-                                <th>{stats.length !== 0 ? stl : '-'}</th>
-                                <th>{stats.length !== 0 ? blk : '-'}</th>
-                                <th>{stats.length !== 0 ? to : '-'}</th>
-                                <th>{stats.length !== 0 ? pf : '-'}</th>
+                                <td>{index + 1}</td>
+                                <td className="text-left">{athlete.displayName}</td>
+                                <td>{stats.length !== 0 ? min : '-'}</td>
+                                <td>{stats.length !== 0 ? pts : '-'}</td>
+                                <td>{stats.length !== 0 ? reb : '-'}</td>
+                                <td>{stats.length !== 0 ? ast : '-'}</td>
+                                <td>{stats.length !== 0 ? stl : '-'}</td>
+                                <td>{stats.length !== 0 ? blk : '-'}</td>
+                                <td>{stats.length !== 0 ? to : '-'}</td>
+                                <td>{stats.length !== 0 ? pf : '-'}</td>
                               </tr>
                             )
                           })}
@@ -455,36 +503,32 @@ function GameCenter() {
                         const home = homeCat?.leaders[0];
 
                         return (
-                          <tr key={type} className="border-b border-gray-800">
-                            <td className="align-center text-left">
-                              <div className="flex items-center gap-2">
-                                <Row>
-                                  <Col xs={9}>
-                                    <p className="font-bold mb-0">{away.athlete.shortName}</p>
-                                    <p>{away.summary}</p>
-                                  </Col>
-                                  <Col xs={3}>
-                                    <h5 className="mt-2">{away.displayValue}</h5>
-                                  </Col>
-                                </Row>
+                          <tr key={type}>
+                            <td>
+                              <div className="leader-cell leader-cell-away">
+                                <div className="leader-info">
+                                  <span className="font-bold">{away.athlete.shortName}</span><br />
+                                  {away.summary}
+                                </div>
+
+                                <div className="leader-stat">
+                                  <h5 className="mb-0">{away.displayValue}</h5>
+                                </div>
                               </div>
                             </td>
 
-                            <td className="align-center">
-                              <p>{awayCat.displayName}</p>
-                            </td>
+                            <td className="align-center">{awayCat.displayName}</td>
 
-                            <td className="align-center text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                <Row>
-                                  <Col xs={3}>
-                                    <h5 className="mt-2">{home.displayValue}</h5>
-                                  </Col>
-                                  <Col xs={9}>
-                                    <p className="font-bold mb-0">{home.athlete.shortName}</p>
-                                    <p>{home.summary}</p>
-                                  </Col>
-                                </Row>
+                            <td>
+                              <div className="leader-cell leader-cell-home">
+                                <div className="leader-stat">
+                                  <h5 className="mb-0">{home.displayValue}</h5>
+                                </div>
+
+                                <div className="leader-info">
+                                  <span className="font-bold">{home.athlete.shortName}</span><br />
+                                  {home.summary}
+                                </div>
                               </div>
                             </td>
                           </tr>
@@ -564,42 +608,9 @@ function GameCenter() {
               <Card className="mt-4 main-content-card">
                 <Card.Body>
                   <h4 className="text-left mb-4">Points per Quarter Performance</h4>
-                  
-                  {game && visitorPoints.length > 0 && (
-                    <Chart options={chartOptions} ref={chartRef}>
-                      {[
-                        { id: "visitor", name: game.visitor_team.name, data: visitorPoints },
-                        { id: "home", name: game.home_team.name, data: homePoints },
-                      ].map((series) => {
-                        const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
-                        const chartPrimary = colors.primary === '#000000' ? '#444' : colors.primary;
 
-                        return (
-                        <Series
-                          key={series.id}
-                          type={series.type}
-                          data={series.data}
-                          type="line"
-                          options={{
-                            ...series.options,
-                            id: series.id,
-                            name: series.name,
-                            color: colors.primary,
-                            marker: {
-                              fillColor: colors.secondary,
-                              lineWidth: 2,
-                              lineColor: colors.primary,
-                              states: {
-                                hover: {
-                                  lineWidth: 3,
-                                  lineColor: '#F8FAFC'
-                                }
-                              }
-                            }
-                          }}
-                        />
-                      )})}
-                    </Chart>
+                  {game && visitorPoints.length > 0 && (
+                    <Chart options={options} ref={chartRef} />
                   )}
                 </Card.Body>
               </Card>
