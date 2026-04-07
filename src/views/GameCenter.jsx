@@ -323,11 +323,6 @@ function GameCenter() {
 
   if (!game || !gameData) return genericPage;
 
-  const seriesCatalog = [
-    { id: "visitor", name: game.visitor_team.name, type: "line", data: visitorPoints },
-    { id: "home", name: game.home_team.name, type: "line", data: homePoints },
-  ];
-
   return (
     <>
       <NavbarMain onLinkClick={openModal} />
@@ -569,44 +564,43 @@ function GameCenter() {
               <Card className="mt-4 main-content-card">
                 <Card.Body>
                   <h4 className="text-left mb-4">Points per Quarter Performance</h4>
+                  
+                  {game && visitorPoints.length > 0 && (
+                    <Chart options={chartOptions} oneToOne={true} ref={chartRef}>
+                      {[
+                        { id: "visitor", name: game.visitor_team.name, data: visitorPoints },
+                        { id: "home", name: game.home_team.name, data: homePoints },
+                      ].map((series) => {
+                        const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
+                        const chartPrimary = colors.primary === '#000000' ? '#444' : colors.primary;
 
-                  <Chart options={chartOptions} oneToOne={true} ref={chartRef}>
-                    {seriesCatalog.map((series) => {
-                      const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
-                      const chartPrimary = colors.primary === '#000000' ? '#444' : colors.primary;
-
-                      return (
-                      <Series
-                        key={series.id}
-                        type={series.type}
-                        data={series.data}
-                        options={{
-                          ...series.options,
-                          id: series.id,
-                          name: series.name,
-                          color: colors.primary,
-                          shadow: {
-                            color: 'rgba(0, 0, 0, 0.5)',
-                            offsetX: 1,
-                            offsetY: 1,
-                            opacity: 0.8,
-                            width: 3
-                          },
-                          marker: {
-                            fillColor: colors.secondary,
-                            lineWidth: 2,
-                            lineColor: colors.primary,
-                            states: {
-                              hover: {
-                                lineWidth: 3,
-                                lineColor: '#F8FAFC'
+                        return (
+                        <Series
+                          key={series.id}
+                          type={series.type}
+                          data={series.data}
+                          type="line"
+                          options={{
+                            ...series.options,
+                            id: series.id,
+                            name: series.name,
+                            color: colors.primary,
+                            marker: {
+                              fillColor: colors.secondary,
+                              lineWidth: 2,
+                              lineColor: colors.primary,
+                              states: {
+                                hover: {
+                                  lineWidth: 3,
+                                  lineColor: '#F8FAFC'
+                                }
                               }
                             }
-                          }
-                        }}
-                      />
-                    )})}
-                  </Chart>
+                          }}
+                        />
+                      )})}
+                    </Chart>
+                  )}
                 </Card.Body>
               </Card>
 
