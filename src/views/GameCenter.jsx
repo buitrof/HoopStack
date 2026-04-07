@@ -497,15 +497,15 @@ function GameCenter() {
                   <Table bordered hover responsive variant="dark" className="hoops-table">
                     <thead>
                       <tr>
-                        <th>{gameData.boxscore.teams[0].team.name} Leader</th>
-                        <th>Stat</th>
-                        <th>{gameData.boxscore.teams[1].team.name} Leader</th>
+                        <th width="42%">{gameData.boxscore.teams[0].team.name} Leader</th>
+                        <th width="16%">Stat</th>
+                        <th width="42%">{gameData.boxscore.teams[1].team.name} Leader</th>
                       </tr>
                     </thead>
                     <tbody>
                       {statTypes.map((type) => {
-                        const awayLeaders = gameData.leaders[0].leaders;
-                        const homeLeaders = gameData.leaders[1].leaders;
+                        const awayLeaders = gameData.leaders[1].leaders;
+                        const homeLeaders = gameData.leaders[0].leaders;
                         const awayCat = awayLeaders.find(l => l.name === type);
                         const homeCat = homeLeaders.find(l => l.name === type);
 
@@ -518,7 +518,7 @@ function GameCenter() {
                               <div className="leader-cell leader-cell-away">
                                 <div className="leader-info">
                                   <span className="font-bold">{away.athlete.shortName}</span><br />
-                                  {away.summary}
+                                  <span className="text-small">{away.summary}</span>
                                 </div>
 
                                 <div className="leader-stat">
@@ -537,7 +537,7 @@ function GameCenter() {
 
                                 <div className="leader-info">
                                   <span className="font-bold">{home.athlete.shortName}</span><br />
-                                  {home.summary}
+                                  <span className="text-small">{home.summary}</span>
                                 </div>
                               </div>
                             </td>
@@ -660,8 +660,8 @@ function GameCenter() {
                           return (
                             <tr key={stat.name}>
                               <td className="text-left" width="50%">{stat.label}</td>
-                              <td width="25%">{stat.displayValue} {awayPct && `(${awayPct}%)`}</td>
-                              <td width="25%">{homeStat?.displayValue || '-'} {homePct && `(${homePct}%)`}</td>
+                              <td width="25%">{`${stat.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}`} {awayPct && `(${awayPct}%)`}</td>
+                              <td width="25%">{`${homeStat?.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}` || '-'} {homePct && `(${homePct}%)`}</td>
                             </tr>
                           )
                         })

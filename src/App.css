@@ -59,6 +59,10 @@ nav.navbar {
   text-align: right;
 }
 
+.text-small {
+  font-size: 14px;
+}
+
 .invisible {
   visibility: hidden;
 }
@@ -225,17 +229,27 @@ nav.navbar {
 }
 
 .leader-cell {
-  display: flex;
+  /* display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.5rem; */
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
-.leader-cell-away {
+.leader-info,
+.leader-stat {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 0.25rem 0;
+}
+
+.leader-cell-away, .leader-cell-home .leader-stat {
   text-align: left;
 }
 
-.leader-cell-home {
+.leader-cell-home, .leader-cell-away .leader-stat {
   text-align: right;
 }
 
@@ -277,6 +291,7 @@ nav.navbar {
   }
 
   .leader-cell {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -284,6 +299,14 @@ nav.navbar {
   .leader-stat {
     order: -1;
     width: 100%;
+  }
+
+  .leader-cell-away .leader-stat {
+    text-align: left;
+  }
+
+  .leader-cell-home .leader-stat {
+    text-align: right;
   }
 
   .leader-info {
