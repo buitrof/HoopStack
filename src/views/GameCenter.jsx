@@ -11,6 +11,8 @@ import ModalMessage from '../components/ModalMessage.jsx';
 import { teamColors } from '../utils/teamColors.js';
 import Footer from '../components/Footer.jsx';
 
+setHighcharts(Highcharts);
+
 function GameCenter() {
   const { id } = useParams();
   const [game, setGame] = useState(null);
@@ -66,7 +68,6 @@ function GameCenter() {
     },
     series: []
   });
-  setHighcharts(Highcharts);
   const chartRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   
