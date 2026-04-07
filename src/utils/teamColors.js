@@ -9,7 +9,7 @@ export const teamColors = {
   "Hawks": { "primary": "#E03A3E", "secondary": "#C1D32F" },
   "Heat": { "primary": "#98002E", "secondary": "#F9A01B" },
   "Hornets": { "primary": "#1D1160", "secondary": "#00788C" },
-  "Jazz": { "primary": "#002B5C", "secondary": "#F9A01B" },
+  "Jazz": { "primary": "#F9A01B", "secondary": "#002B5C" },
   "Kings": { "primary": "#5A2D81", "secondary": "#63727A" },
   "Knicks": { "primary": "#006BB6", "secondary": "#F58426" },
   "Lakers": { "primary": "#552583", "secondary": "#FDB927" },

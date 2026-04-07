@@ -66,6 +66,18 @@ function GameCenter() {
         color: '#CBD5E1'
       }
     },
+    exporting: {
+      enabled: true,
+      buttons: {
+        contextButton: {
+          align: "left",
+          verticalAlign: "bottom",
+        }
+      }
+    },
+    accessibility: {
+      enabled: true
+    },
     series: []
   });
   const chartRef = useRef(null);
@@ -319,7 +331,6 @@ function GameCenter() {
           states: {
             hover: {
               lineWidth: 3,
-              lineColor: "#F8FAFC"
             }
           }
         }
@@ -336,7 +347,6 @@ function GameCenter() {
           states: {
             hover: {
               lineWidth: 3,
-              lineColor: "#F8FAFC"
             }
           }
         }
