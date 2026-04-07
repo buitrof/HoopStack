@@ -1,10 +1,10 @@
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Container, Col, Row, Table, Tabs, Tab } from 'react-bootstrap';
-import { Chart, Series, Tooltip, setHighcharts } from "@highcharts/react";
 import Highcharts from "highcharts";
-import "highcharts/modules/exporting";
+import { Chart, Series, Tooltip, setHighcharts } from "@highcharts/react";
 import "highcharts/modules/accessibility";
+import "highcharts/modules/exporting";
 import GameCard from '../components/GameCard.jsx';
 import NavbarMain from '../components/Navbar.jsx';
 import ModalMessage from '../components/ModalMessage.jsx';
@@ -67,10 +67,21 @@ function GameCenter() {
     series: []
   });
   setHighcharts(Highcharts);
+  const chartRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
   
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (chartRef.current && chartRef.current.chart) {
+        chartRef.current.chart.reflow();
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, []);
   
   useEffect(() => {
     fetchGame();
@@ -558,7 +569,7 @@ function GameCenter() {
                 <Card.Body>
                   <h4 className="text-left mb-4">Points per Quarter Performance</h4>
 
-                  <Chart options={chartOptions} oneToOne={true}>
+                  <Chart options={chartOptions} oneToOne={true} ref={chartRef}>
                     {seriesCatalog.map((series) => {
                       const colors = teamColors[series.name] || { primary: "#333", secondary: "#999" };
                       const chartPrimary = colors.primary === '#000000' ? '#444' : colors.primary;
