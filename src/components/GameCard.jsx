@@ -121,7 +121,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
                   <h5>
                     <span>{period}</span>
                     <br />
-                    {game.status !== 'Final' && (getRegulationScores("visitor") !== getRegulationScores("home")) && (
+                    {game.status !== 'Final' && (
                       <span className={`fw-bold ${formattedTime.includes('.') ? 'text-danger' : ''}`}>{formattedTime}</span>
                     )}
 

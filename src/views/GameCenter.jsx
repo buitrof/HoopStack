@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Card, Container, Col, Row, Table } from 'react-bootstrap';
+import { Button, Card, Container, Col, Row, Table, Tabs, Tab } from 'react-bootstrap';
 import { Chart, Series, Tooltip } from "@highcharts/react";
 import Highcharts from "highcharts/highcharts";
 import "highcharts/modules/exporting";
@@ -14,6 +14,7 @@ import Footer from '../components/Footer.jsx';
 function GameCenter() {
   const { id } = useParams();
   const [game, setGame] = useState(null);
+  const [gameData, setGameData] = useState(null);
   const [loadMessage, setLoadMessage] = useState("Loading data...");
   const [todayDate, setTodayDate] = useState('');
   const [visitorPoints, setVisitorPoints] = useState([]);
@@ -75,6 +76,7 @@ function GameCenter() {
   }, [id]);
   
   const apiKey = import.meta.env.VITE_BDL_API_KEY;
+  const statTypes = ['points', 'rebounds', 'assists'];
   
   const fetchGame = async () => {
     try {
@@ -88,12 +90,17 @@ function GameCenter() {
           },
         }
       );
-      
+
       if (response.status === 429) {
         throw new Error('RATE_LIMIT');
       }
       const data = await response.json();
-      setGame(data.data);
+
+      if (response.status === 200) {
+        setGame(data.data);
+
+        await fetchGameData(data.data);
+      }
     } catch (error) {
       console.log(error)
       if (error.message === 'RATE_LIMIT') {
@@ -101,6 +108,31 @@ function GameCenter() {
       } else {
         setLoadMessage("Error getting data :(");
       }
+    }
+  };
+
+  const fetchGameData = async (bdlGame) => {
+    try {
+      const date = bdlGame.date.split('T')[0].replaceAll('-', '');
+
+      const scoreboardUrl = `/espn-api/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`;
+      const response = await fetch(scoreboardUrl);
+      const data = await response.json();
+
+      const espnGame = data.events.find(event =>
+        event.name.toLowerCase().includes(bdlGame.home_team.name.toLowerCase())
+      );
+
+      if (espnGame) {
+        const espnId = espnGame.id;
+        const summaryUrl = `/espn-api/apis/site/v2/sports/basketball/nba/summary?event=${espnId}`;
+        const summaryResponse = await fetch(summaryUrl);
+        const summaryData = await summaryResponse.json();
+        setGameData(summaryData);
+      }
+    } catch (error) {
+      console.error("Failed to sync with ESPN:", error);
+      setLoadMessage("Failed to sync with ESPN :(");
     }
   };
 
@@ -257,6 +289,10 @@ function GameCenter() {
     console.log(game);
   }, [game])
 
+  useEffect(() => {
+    console.log(gameData);
+  }, [gameData])
+
   const genericPage = 
     <>
       <NavbarMain onLinkClick={openModal} />
@@ -269,7 +305,7 @@ function GameCenter() {
       <ModalMessage show={showModal} handleClose={closeModal} />
     </>;
 
-  if (!game) return genericPage;
+  if (!game || !gameData) return genericPage;
 
   const seriesCatalog = [
     { id: "visitor", name: game.visitor_team.name, type: "line", data: visitorPoints },
@@ -281,18 +317,170 @@ function GameCenter() {
       <NavbarMain onLinkClick={openModal} />
 
       <Container className="main-container">
-        {game &&
+        {gameData &&
           <Row>
             <Col xs={12} className="mt-4">
               <h1>Game Center: {game.visitor_team.full_name} vs. {game.home_team.full_name}</h1>
             </Col>
 
             <Col xl={6} className="text-center">
-              <Card className="mt-4 main-content-card">
+              <Card className="mt-4 main-content-card no-min-height">
                 <Card.Body>
                   <h4 className="text-left">Game Status & Score</h4>
 
                   <GameCard game={game} key={game.id} onDetailsClick={openModal} gameCenterLinkHide={true} />
+                </Card.Body>
+              </Card>
+
+              <Card className="mt-4 main-content-card">
+                <Card.Body>
+                  <h4 className="text-left">Player Stats</h4>
+
+                  <Tabs
+                    defaultActiveKey="awayTeam"
+                    id="player-stats-tab"
+                    className="hoop-tabs"
+                    justify
+                  >
+                    <Tab eventKey="awayTeam" title={gameData.boxscore.teams[0].team.name}>
+                      <Table bordered hover responsive variant="dark" className="hoops-table">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            <th>Player</th>
+                            <th>MIN</th>
+                            <th>PTS</th>
+                            <th>REB</th>
+                            <th>AST</th>
+                            <th>STL</th>
+                            <th>BLK</th>
+                            <th>TO</th>
+                            <th>PF</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {gameData.boxscore.players[0].statistics[0].athletes.map(({ athlete, stats }, index) => {
+                            const [min, pts, fgs, threeFG, fts, reb, ast, to, stl, blk, orbs, drbs, pf, plusMinus] = stats;
+
+                            return (
+                            <tr key={index}>
+                              <th>{index + 1}</th>
+                              <th className="text-left">{athlete.displayName}</th>
+                              <th>{stats.length !== 0 ? min : '-'}</th>
+                              <th>{stats.length !== 0 ? pts : '-'}</th>
+                              <th>{stats.length !== 0 ? reb : '-'}</th>
+                              <th>{stats.length !== 0 ? ast : '-'}</th>
+                              <th>{stats.length !== 0 ? stl : '-'}</th>
+                              <th>{stats.length !== 0 ? blk : '-'}</th>
+                              <th>{stats.length !== 0 ? to : '-'}</th>
+                              <th>{stats.length !== 0 ? pf : '-'}</th>
+                            </tr>
+                          )})}
+                        </tbody>
+                      </Table>
+                    </Tab>
+                    <Tab eventKey="homeTeam" title={gameData.boxscore.teams[1].team.name}>
+                      <Table bordered hover responsive variant="dark" className="hoops-table">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            <th>Player</th>
+                            <th>MIN</th>
+                            <th>PTS</th>
+                            <th>REB</th>
+                            <th>AST</th>
+                            <th>STL</th>
+                            <th>BLK</th>
+                            <th>TO</th>
+                            <th>PF</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {gameData.boxscore.players[1].statistics[0].athletes.map(({ athlete, stats }, index) => {
+                            const [min, pts, fgs, threeFG, fts, reb, ast, to, stl, blk, orbs, drbs, pf, plusMinus] = stats;
+
+                            return (
+                              <tr key={index}>
+                                <th>{index + 1}</th>
+                                <th className="text-left">{athlete.displayName}</th>
+                                <th>{stats.length !== 0 ? min : '-'}</th>
+                                <th>{stats.length !== 0 ? pts : '-'}</th>
+                                <th>{stats.length !== 0 ? reb : '-'}</th>
+                                <th>{stats.length !== 0 ? ast : '-'}</th>
+                                <th>{stats.length !== 0 ? stl : '-'}</th>
+                                <th>{stats.length !== 0 ? blk : '-'}</th>
+                                <th>{stats.length !== 0 ? to : '-'}</th>
+                                <th>{stats.length !== 0 ? pf : '-'}</th>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </Table>
+                    </Tab>
+                  </Tabs>
+                </Card.Body>
+              </Card>
+
+              <Card className="mt-4 main-content-card">
+                <Card.Body>
+                  <h4 className="text-left">Team Leaders</h4>
+
+                  <Table bordered hover responsive variant="dark" className="hoops-table">
+                    <thead>
+                      <tr>
+                        <th>{gameData.boxscore.teams[0].team.name} Leader</th>
+                        <th>Stat</th>
+                        <th>{gameData.boxscore.teams[1].team.name} Leader</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {statTypes.map((type) => {
+                        const awayLeaders = gameData.leaders[0].leaders;
+                        const homeLeaders = gameData.leaders[1].leaders;
+                        const awayCat = awayLeaders.find(l => l.name === type);
+                        const homeCat = homeLeaders.find(l => l.name === type);
+
+                        const away = awayCat?.leaders[0];
+                        const home = homeCat?.leaders[0];
+
+                        return (
+                          <tr key={type} className="border-b border-gray-800">
+                            <td className="align-center text-left">
+                              <div className="flex items-center gap-2">
+                                <Row>
+                                  <Col xs={9}>
+                                    <p className="font-bold mb-0">{away.athlete.shortName}</p>
+                                    <p>{away.summary}</p>
+                                  </Col>
+                                  <Col xs={3}>
+                                    <h5 className="mt-2">{away.displayValue}</h5>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </td>
+
+                            <td className="align-center">
+                              <p>{awayCat.displayName}</p>
+                            </td>
+
+                            <td className="align-center text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <Row>
+                                  <Col xs={3}>
+                                    <h5 className="mt-2">{home.displayValue}</h5>
+                                  </Col>
+                                  <Col xs={9}>
+                                    <p className="font-bold mb-0">{home.athlete.shortName}</p>
+                                    <p>{home.summary}</p>
+                                  </Col>
+                                </Row>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </Table>
                 </Card.Body>
               </Card>
             </Col>
@@ -403,6 +591,52 @@ function GameCenter() {
                       />
                     )})}
                   </Chart>
+                </Card.Body>
+              </Card>
+
+              <Card className="mt-4 main-content-card">
+                <Card.Body>
+                  <h4 className="text-left mb-4">Team Stats</h4>
+
+                  <Table bordered hover responsive variant="dark" className="hoops-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>{gameData.boxscore.teams[0].team.name}</th>
+                        <th>{gameData.boxscore.teams[1].team.name}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gameData.boxscore.teams[0].statistics
+                        .filter(stat => !['fieldGoalPct', 'threePointFieldGoalPct', 'freeThrowPct', 'defensiveRebounds', 'teamTurnovers', 'totalTurnovers', 'fouls', 'flagrantFouls', 'leadChanges', 'totalTechnicalFouls', 'technicalFouls'].includes(stat.name))
+                        .map((stat) => {
+                          const homeStat = gameData.boxscore.teams[1].statistics.find(s => s.name === stat.name);
+
+                          const getPct = (teamIdx, statName) => {
+                            const pctMap = {
+                              'fieldGoalsMade-fieldGoalsAttempted': 'fieldGoalPct',
+                              'threePointFieldGoalsMade-threePointFieldGoalsAttempted': 'threePointFieldGoalPct',
+                              'freeThrowsMade-freeThrowsAttempted': 'freeThrowPct'
+                            };
+                            const pctName = pctMap[statName];
+                            if (!pctName) return null;
+                            return gameData.boxscore.teams[teamIdx].statistics.find(s => s.name === pctName)?.displayValue;
+                          };
+
+                          const awayPct = getPct(0, stat.name);
+                          const homePct = getPct(1, stat.name);
+
+                          return (
+                            <tr key={stat.name}>
+                              <td className="text-left" width="50%">{stat.label}</td>
+                              <td width="25%">{stat.displayValue} {awayPct && `(${awayPct}%)`}</td>
+                              <td width="25%">{homeStat?.displayValue || '-'} {homePct && `(${homePct}%)`}</td>
+                            </tr>
+                          )
+                        })
+                      }
+                    </tbody>
+                  </Table>
                 </Card.Body>
               </Card>
             </Col>

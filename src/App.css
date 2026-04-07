@@ -38,6 +38,10 @@ nav.navbar {
   text-align: center;
 }
 
+.font-bold {
+  font-weight: 600;
+}
+
 .align-center {
   align-content: center;
 }
@@ -143,6 +147,10 @@ nav.navbar {
   border-color: #EF4444;
 }
 
+.no-min-height .game-card {
+  min-height: unset;
+}
+
 .game-card h5 {
   margin-bottom: 0;
   height: 100%;
@@ -202,6 +210,18 @@ nav.navbar {
 
 .mobile-hide {
   display: revert;
+}
+
+.hoop-tabs.nav-tabs .nav-link {
+  color: #F8FAFC;
+}
+
+.nav-tabs .nav-link{
+  background-color: #1E293B;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: transparent;
 }
 
 @media (min-width: 1200px) and (max-width: 1399px) {
