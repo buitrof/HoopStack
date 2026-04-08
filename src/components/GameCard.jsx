@@ -66,7 +66,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
               <Col md={12} xs={4} className="visitor-logo">
                 <VisitorLogo size={75} />
                 <br className="mobile-show" />
-                <h5 className="mobile-show">{game.visitor_team.name}</h5>
+                <h5 className="mobile-show team-name">{game.visitor_team.name}</h5>
               </Col>
 
               <Col xs={12} className="mobile-hide">
@@ -84,7 +84,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
               <Col xs={game.period === 0 ? 4 : { span: 4, offset: 4 }} className="mobile-show">
                 <HomeLogo size={75} />
                 <br />
-                <h5>{game.home_team.name}</h5>
+                <h5 className="team-name">{game.home_team.name}</h5>
               </Col>
             </Row>
           </Col>
