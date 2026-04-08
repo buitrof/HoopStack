@@ -119,14 +119,19 @@ function Home() {
   }, [games])
 
   return (
-    <>
+    <main>
+      <title>HoopStack | Live NBA Games</title>
+      <meta name="description" content="Check live NBA scores, game schedules, and advanced analytics for today's matchups." />
+      <meta property="og:title" content="HoopStack Scoreboard" />
+      <meta property="og:type" content="website" />
+
       <NavbarMain onLinkClick={openModal} />
 
       <Container className="main-container">
         {games.length > 0 ?
           <Row>
             <Col xs={12} className="mt-4">
-              <h1>NBA Games</h1>
+              <h1>HoopStack Scoreboard</h1>
             </Col>
 
             <Col xl={6} className="text-center">
@@ -198,7 +203,7 @@ function Home() {
       <Footer />
 
       <ModalMessage show={showModal} handleClose={closeModal} />
-    </>
+    </main>
   )
 }
 

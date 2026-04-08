@@ -382,7 +382,15 @@ function GameCenter() {
   if (!game || !gameData) return genericPage;
 
   return (
-    <>
+    <main>
+      {game && (
+        <>
+          <title>{`${game.visitor_team.name} @ ${game.home_team.name} - HoopStack`}</title>
+          <meta name="description" content={`Live box scores and period-by-period scoring for ${game.visitor_team.full_name} vs ${game.home_team.full_name}.`} />
+          <meta property="og:title" content={`${game.visitor_team.abbreviation} vs ${game.home_team.abbreviation} - Game Center`} />
+        </>
+      )}
+
       <NavbarMain onLinkClick={openModal} />
 
       <Container className="main-container">
@@ -678,7 +686,7 @@ function GameCenter() {
       <Footer />
 
       <ModalMessage show={showModal} handleClose={closeModal} />
-    </>
+    </main>
   )
 }
 
