@@ -288,21 +288,9 @@ function GameCenter() {
     return runningTotal;
   };
 
-  const getGameDates = () => {
-    const date = new Date();
-
-    const tomorrow = new Date(date);
-    tomorrow.setDate(date.getDate() + 1);
-
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-
-    setTodayDate(formatDate(date));
-    setTomorrow(formatDate(tomorrow));
+  const isQuarterWinner = (awayScore, homeScore) => {
+    if (awayScore === homeScore) return null;
+    return awayScore > homeScore ? 'away' : 'home';
   };
 
   const formatDisplayDate = (dateString) => {
@@ -586,37 +574,65 @@ function GameCenter() {
                     <tbody>
                       <tr>
                         <td className="text-left">{game.visitor_team.name}</td>
-                        <td>{game.visitor_q1}</td>
-                        <td>{game.period > 1 ? game.visitor_q2 : '-'}</td>
-                        <td>{game.period > 2 ? game.visitor_q3 : '-'}</td>
-                        <td>{game.period > 3 ? game.visitor_q4 : '-'}</td>
+                        <td className={isQuarterWinner(game.visitor_q1, game.home_q1) === 'away' ? 'better-score-subtle' : ''}>
+                          {game.visitor_q1}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q2, game.home_q2) === 'away' ? 'better-score-subtle' : ''}>
+                          {game.period > 1 ? game.visitor_q2 : '-'}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q3, game.home_q3) === 'away' ? 'better-score-subtle' : ''}>
+                          {game.period > 2 ? game.visitor_q3 : '-'}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q4, game.home_q4) === 'away' ? 'better-score-subtle' : ''}>
+                          {game.period > 3 ? game.visitor_q4 : '-'}
+                        </td>
                         {game.visitor_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) &&
-                          <td>{game.visitor_ot1}</td>
+                          <td className={isQuarterWinner(game.visitor_ot1, game.home_ot1) === 'away' ? 'better-score-subtle' : ''}>
+                            {game.visitor_ot1}
+                          </td>
                         }
                         {game.visitor_ot2 !== null &&
-                          <td>{game.visitor_ot2}</td>
+                          <td className={isQuarterWinner(game.visitor_ot2, game.home_ot2) === 'away' ? 'better-score-subtle' : ''}>
+                            {game.visitor_ot2}
+                          </td>
                         }
                         {game.visitor_ot3 !== null &&
-                          <td>{game.visitor_ot3}</td>
+                          <td className={isQuarterWinner(game.visitor_ot3, game.home_ot3) === 'away' ? 'better-score-subtle' : ''}>
+                            {game.visitor_ot3}
+                          </td>
                         }
-                        <td>{getRunningTotals("visitor")}</td>
+                        <td className={getRunningTotals("visitor") > getRunningTotals("home") ? "better-score total" : ""}>{getRunningTotals("visitor")}</td>
                       </tr>
                       <tr>
                         <td className="text-left">{game.home_team.name}</td>
-                        <td>{game.home_q1}</td>
-                        <td>{game.period > 1 ? game.home_q2 : '-'}</td>
-                        <td>{game.period > 2 ? game.home_q3 : '-'}</td>
-                        <td>{game.period > 3 ? game.home_q4 : '-'}</td>
+                        <td className={isQuarterWinner(game.visitor_q1, game.home_q1) === 'home' ? 'better-score-subtle' : ''}>
+                          {game.home_q1}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q2, game.home_q2) === 'home' ? 'better-score-subtle' : ''}>
+                          {game.period > 1 ? game.home_q2 : '-'}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q3, game.home_q3) === 'home' ? 'better-score-subtle' : ''}>
+                          {game.period > 2 ? game.home_q3 : '-'}
+                        </td>
+                        <td className={isQuarterWinner(game.visitor_q4, game.home_q4) === 'home' ? 'better-score-subtle' : ''}>
+                          {game.period > 3 ? game.home_q4 : '-'}
+                        </td>
                         {game.home_ot1 !== null && (getRegulationScores("visitor") === getRegulationScores("home")) &&
-                          <td>{game.home_ot1}</td>
+                          <td className={isQuarterWinner(game.visitor_ot1, game.home_ot1) === 'home' ? 'better-score-subtle' : ''}>
+                            {game.home_ot1}
+                          </td>
                         }
                         {game.home_ot2 !== null &&
-                          <td>{game.home_ot2}</td>
+                          <td className={isQuarterWinner(game.visitor_ot2, game.home_ot2) === 'home' ? 'better-score-subtle' : ''}>
+                            {game.home_ot2}
+                          </td>
                         }
                         {game.home_ot3 !== null &&
-                          <td>{game.home_ot3}</td>
+                          <td className={isQuarterWinner(game.visitor_ot3, game.home_ot3) === 'home' ? 'better-score-subtle' : ''}>
+                            {game.home_ot3}
+                          </td>
                         }
-                        <td>{getRunningTotals("home")}</td>
+                        <td className={getRunningTotals("home") > getRunningTotals("visitor") ? "better-score total" : ""}>{getRunningTotals("home")}</td>
                       </tr>
                     </tbody>
                   </Table>
@@ -650,6 +666,41 @@ function GameCenter() {
                         .filter(stat => !['fieldGoalPct', 'threePointFieldGoalPct', 'freeThrowPct', 'defensiveRebounds', 'teamTurnovers', 'totalTurnovers', 'fouls', 'flagrantFouls', 'leadChanges', 'totalTechnicalFouls', 'technicalFouls'].includes(stat.name))
                         .map((stat) => {
                           const homeStat = gameData.boxscore.teams[1].statistics.find(s => s.name === stat.name);
+                          const lowerIsBetter = ['turnovers', 'totalTurnovers', 'teamTurnovers', 'personalFouls', 'turnoverPoints'];
+
+                          const isAwayBetter = () => {
+                            const awayPct = parseFloat(getPct(0, stat.name));
+                            const homePct = parseFloat(getPct(1, stat.name));
+
+                            if (!isNaN(awayPct) && !isNaN(homePct)) {
+                              if (awayPct > homePct) return true;
+                              if (awayPct < homePct) return false;
+                            }
+
+                            const awayVal = parseFloat(stat.displayValue);
+                            const homeVal = parseFloat(homeStat?.displayValue);
+
+                            if (isNaN(awayVal) || isNaN(homeVal) || awayVal === homeVal) return false;
+
+                            return lowerIsBetter.includes(stat.name) ? awayVal < homeVal : awayVal > homeVal;
+                          };
+
+                          const isHomeBetter = () => {
+                            const awayPct = parseFloat(getPct(0, stat.name));
+                            const homePct = parseFloat(getPct(1, stat.name));
+
+                            if (!isNaN(awayPct) && !isNaN(homePct)) {
+                              if (homePct > awayPct) return true;
+                              if (homePct < awayPct) return false;
+                            }
+
+                            const awayVal = parseFloat(stat.displayValue);
+                            const homeVal = parseFloat(homeStat?.displayValue);
+                            
+                            if (isNaN(awayVal) || isNaN(homeVal) || awayVal === homeVal) return false;
+
+                            return lowerIsBetter.includes(stat.name) ? homeVal < awayVal : homeVal > awayVal;
+                          };
 
                           const getPct = (teamIdx, statName) => {
                             const pctMap = {
@@ -668,8 +719,12 @@ function GameCenter() {
                           return (
                             <tr key={stat.name}>
                               <td className="text-left" width="50%">{stat.label}</td>
-                              <td width="25%">{`${stat.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}`} {awayPct && `(${awayPct}%)`}</td>
-                              <td width="25%">{`${homeStat?.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}` || '-'} {homePct && `(${homePct}%)`}</td>
+                              <td width="25%" className={isAwayBetter() ? "better-score" : ""}>
+                                {`${stat.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}`} {awayPct && `(${awayPct}%)`}
+                              </td>
+                              <td width="25%" className={isHomeBetter() ? "better-score" : ""}>
+                                {`${homeStat?.displayValue}` + `${stat.name === 'leadPercentage' ? '%' : ''}` || '-'} {homePct && `(${homePct}%)`}
+                              </td>
                             </tr>
                           )
                         })

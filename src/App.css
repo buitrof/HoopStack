@@ -191,6 +191,19 @@ nav.navbar {
   margin-bottom: 8px;
 }
 
+.better-score {
+  color: #07af07 !important;
+  font-weight: 600;
+}
+
+.better-score.total {
+  background-color: rgba(7, 175, 7, 0.15);
+}
+
+.better-score-subtle {
+  color: #07af07 !important;
+}
+
 .team-name {
   font-size: 16px;
 }
