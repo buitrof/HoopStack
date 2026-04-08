@@ -21,11 +21,31 @@ function Home() {
   const MAX_GAMES = 5;
   
   const todayGames = games.filter(game => game.date === todayDate);
-  const displayedGamesToday = showAllToday ? todayGames : todayGames.slice(0, MAX_GAMES);
   
-  const tomorrowGames = games.filter(game => game.date === tomorrow);
+  const tomorrowGames = games
+    .filter(game => game.date === tomorrow)
+    .sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
   const displayedGamesTomorrow = showAllTomorrow ? tomorrowGames : tomorrowGames.slice(0, MAX_GAMES);
+
+  const getStatusPriority = (status, period) => {
+    if (status === "Final") return 2;
+    if (period === 0) return 1;
+    return 0;
+  };
   
+  const sortedGames = todayGames.sort((a, b) => {
+    const priorityA = getStatusPriority(a.status, a.period);
+    const priorityB = getStatusPriority(b.status, b.period);
+
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    return new Date(a.datetime) - new Date(b.datetime);
+  });
+
+  const displayedGamesToday = showAllToday ? sortedGames : sortedGames.slice(0, MAX_GAMES);
+
   const apiKey = import.meta.env.VITE_BDL_API_KEY;
 
   const getGameDates = () => {
@@ -94,27 +114,6 @@ function Home() {
     }
   }, [todayDate])
 
-  const fetchPlayerStats = async (playerId) => {
-    try {
-      const url = 'https://api.balldontlie.io/v1/players?player_ids[]=237';
-      const newUrl = `https://api.balldontlie.io/v1/games?start_date=${getTodayDate()}`;
-      const response = await fetch(newUrl,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': '72142abe-a3ff-4a88-8ef6-c29ceb6ee69d'
-          },
-        }
-      );
-
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.log(error)
-    }
-  };
-
   useEffect(() => {
     console.log(games);
   }, [games])
@@ -133,7 +132,7 @@ function Home() {
             <Col xl={6} className="text-center">
               <Card className="mt-4 main-content-card">
                 <Card.Body>
-                  <h4 className="text-left">Today's Games <span className="subtitle">({formatDisplayDate(todayDate)})</span></h4>
+                  <h4 className="text-left mb-4">Today's Games <span className="subtitle">({formatDisplayDate(todayDate)})</span></h4>
 
                   {todayGames.length > 0 ?
                     <>
@@ -162,7 +161,7 @@ function Home() {
             <Col xl={6} className="text-center">
               <Card className="mt-4 main-content-card">
                 <Card.Body>
-                  <h4 className="text-left">Tomorrow's Games <span className="subtitle">({formatDisplayDate(tomorrow)})</span></h4>
+                  <h4 className="text-left mb-4">Tomorrow's Games <span className="subtitle">({formatDisplayDate(tomorrow)})</span></h4>
                   {tomorrowGames.length > 0 ?
                     <>
                       {displayedGamesTomorrow.map((game) => (
