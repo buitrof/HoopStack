@@ -70,7 +70,7 @@ const GameCard = ({ game, onDetailsClick, gameCenterLinkHide }) => {
               </Col>
 
               <Col xs={12} className="mobile-hide">
-                <h5>{game.visitor_team.name}</h5>
+                <h5 className="team-name">{game.visitor_team.name}</h5>
               </Col>
 
               {game.period === 0 &&
